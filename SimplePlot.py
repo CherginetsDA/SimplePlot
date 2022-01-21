@@ -1,5 +1,6 @@
 
 import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
 import time
 
@@ -76,12 +77,23 @@ class SimplePlot:
                     self.__ax.set_ylim(bottom = min(self.__ylim), top = max(self.__ylim))
                 self.__ax.legend(self.__legend)
                 self.__fig.canvas.draw()
-                plt.pause(.001)
+                self.pause(.001)
+
+    def pause(self,interval):
+        backend = plt.rcParams['backend']
+        if backend in matplotlib.rcsetup.interactive_bk:
+            figManager = matplotlib._pylab_helpers.Gcf.get_active()
+            if figManager is not None:
+                canvas = figManager.canvas
+                if canvas.figure.stale:
+                    canvas.draw()
+                canvas.start_event_loop(interval)
+                return
 
 if __name__=="__main__":
     import math
     sp_sin = SimplePlot(time_limit = 5, dim = 1, legend = ["sin(t)"], ylim = (-1,1))
-    # sp_cos = SimplePlot(size_limit = 250, legend = ["cos(t)"], ylim = (-1,1))
+    sp_cos = SimplePlot(size_limit = 250, legend = ["cos(t)"], ylim = (-1,1))
     while True:
         sp_sin.update(np.array([math.sin(time.time())]))
-        # sp_cos.update(np.array([math.cos(time.time())]))
+        sp_cos.update(np.array([math.cos(time.time())]))
